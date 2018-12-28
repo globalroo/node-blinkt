@@ -5,7 +5,8 @@
   "version": "1.0.3",
   "main": "./Blinkt",
   "scripts": {
-    "test": "node example"
+    "test": "node example",
+    "precommit": "pretty-quick --staged"
   },
   "keywords": [
     "blinkt",
@@ -13,7 +14,7 @@
   ],
   "private": false,
   "dependencies": {
-    "wiringpi-node": "2.4.4"
+    "node-wiring-pi": "^0.0.4"
   },
   "engines": {
     "node": "*"
@@ -24,5 +25,10 @@
   },
   "bugs": {
     "url": "http://github.com/irrelon/node-blinkt/issues"
+  },
+  "devDependencies": {
+    "husky": "^1.2.1",
+    "prettier": "1.15.3",
+    "pretty-quick": "^1.8.0"
   }
 }

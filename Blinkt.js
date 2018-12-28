@@ -1,13 +1,12 @@
 "use strict";
-
-var wpi = require('wiringpi-node'),
+var wpi = require("node-wiring-pi"),
 	DAT = 23,
 	CLK = 24,
 	Blinkt;
 
-Blinkt = function () {
-	this.brightnessmask = 0x1F; // 0b11111
-	this.significantbitsmask = 0xE0; //0b11100000
+Blinkt = function() {
+	this.brightnessmask = 0x1f; // 0b11111
+	this.significantbitsmask = 0xe0; //0b11100000
 };
 
 /**
@@ -15,16 +14,15 @@ Blinkt = function () {
  * before any other commands. All pixels will start off white at
  * full brightness by default.
  */
-Blinkt.prototype.setup = function setup (dat, clk) {
+Blinkt.prototype.setup = function setup(dat, clk) {
 	// Set WPI to GPIO mode
-	wpi.setup('gpio');
+	wpi.setup("gpio");
 
-	
-	if(Boolean(dat) && isNaN(dat)){
+	if (Boolean(dat) && isNaN(dat)) {
 		//if dat has value and is not a number
 		throw new Error("The dat value must be a pin number");
 	}
-	if(Boolean(clk) && isNaN(clk)){
+	if (Boolean(clk) && isNaN(clk)) {
 		//if clk has value and is not a number
 		throw new Error("The clk value must be a pin number");
 	}
@@ -52,7 +50,7 @@ Blinkt.prototype.setup = function setup (dat, clk) {
  * @param {Number} b The pixel blue value between 0 and 255.
  * @param {Number} a The pixel brightness value between 0.0 and 1.0.
  */
-Blinkt.prototype.setAllPixels = function setAllPixels (r, g, b, a) {
+Blinkt.prototype.setAllPixels = function setAllPixels(r, g, b, a) {
 	for (var i = 0; i < this._numPixels; i++) {
 		this.setPixel(i, r, g, b, a);
 	}
@@ -70,14 +68,14 @@ Blinkt.prototype.setAllPixels = function setAllPixels (r, g, b, a) {
  * @param {Number} b The pixel blue value between 0 and 255.
  * @param {Number} a The pixel brightness value between 0.0 and 1.0.
  */
-Blinkt.prototype.setPixel = function setPixel (pixelNum, r, g, b, a) {
+Blinkt.prototype.setPixel = function setPixel(pixelNum, r, g, b, a) {
 	if (a === undefined) {
 		if (this._pixels[pixelNum]) {
 			// Set a to current level or 1.0 if none exists
 			a = this._pixels[pixelNum][3] !== undefined ? this._pixels[pixelNum][3] : 1.0;
 		}
 	} else {
-		a = parseInt((31.0 * a), 10) & this.brightnessmask; // jshint ignore:line
+		a = parseInt(31.0 * a, 10) & this.brightnessmask; // jshint ignore:line
 	}
 
 	this._pixels[pixelNum] = [
@@ -96,8 +94,8 @@ Blinkt.prototype.setPixel = function setPixel (pixelNum, r, g, b, a) {
  * @param {Number} brightness The pixel brightness value between 0.0
  * and 1.0.
  */
-Blinkt.prototype.setBrightness = function setBrightness (pixelNum, brightness) {
-	this._pixels[pixelNum][3] = parseInt((31.0 * brightness), 10) & this.brightnessmask; // jshint ignore:line
+Blinkt.prototype.setBrightness = function setBrightness(pixelNum, brightness) {
+	this._pixels[pixelNum][3] = parseInt(31.0 * brightness, 10) & this.brightnessmask; // jshint ignore:line
 };
 
 /**
@@ -105,7 +103,7 @@ Blinkt.prototype.setBrightness = function setBrightness (pixelNum, brightness) {
  * This is the same as setting all pixels to black.
  * You must also call sendUpdate() if you want to turn Blinkt! off.
  */
-Blinkt.prototype.clearAll = function clearAll () {
+Blinkt.prototype.clearAll = function clearAll() {
 	for (var i = 0; i < this._numPixels; i++) {
 		this.setPixel(i, 0, 0, 0);
 	}
@@ -117,8 +115,8 @@ Blinkt.prototype.clearAll = function clearAll () {
  * You must also call sendUpdate() if you want to turn Blinkt! off.
  * @param {Number} led index to clear.
  */
-Blinkt.prototype.clear = function clear (i) { 
-		this.setPixel(i, 0, 0, 0); 
+Blinkt.prototype.clear = function clear(i) {
+	this.setPixel(i, 0, 0, 0);
 };
 
 /**
@@ -126,9 +124,8 @@ Blinkt.prototype.clear = function clear (i) {
  * have set each pixel RGB and brightness, you MUST call this for the
  * pixels to change on the Blinkt! device.
  */
-Blinkt.prototype.sendUpdate = function sendUpdate () {
-	var i,
-		pixel;
+Blinkt.prototype.sendUpdate = function sendUpdate() {
+	var i, pixel;
 
 	for (i = 0; i < 4; i++) {
 		this._writeByte(0);
@@ -156,11 +153,11 @@ Blinkt.prototype.sendUpdate = function sendUpdate () {
  * @param {Number} byte The byte value to write.
  * @private
  */
-Blinkt.prototype._writeByte = function writeByte (byte) {
+Blinkt.prototype._writeByte = function writeByte(byte) {
 	var bit;
 
-	for (var i = 0 ; i < this._numPixels; i++) {
-		bit = ((byte & (1 << (7 - i))) > 0) === true ? wpi.HIGH : wpi.LOW; // jshint ignore:line
+	for (var i = 0; i < this._numPixels; i++) {
+		bit = (byte & (1 << (7 - i))) > 0 === true ? wpi.HIGH : wpi.LOW; // jshint ignore:line
 
 		wpi.digitalWrite(this._dat, bit);
 		wpi.digitalWrite(this._clk, 1);
@@ -174,7 +171,7 @@ Blinkt.prototype._writeByte = function writeByte (byte) {
  */
 Blinkt.prototype._latch = function latch() {
 	wpi.digitalWrite(this._dat, 0);
-	for (var i = 0 ; i < 36; i++) {
+	for (var i = 0; i < 36; i++) {
 		wpi.digitalWrite(this._clk, 1);
 		wpi.digitalWrite(this._clk, 0);
 	}
